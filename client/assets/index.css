@@ -32,7 +32,6 @@ header h1 {
 
 header .cart {
   float: right;
-  overflow: hidden;
 }
 
 main {
