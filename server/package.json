@@ -20,6 +20,7 @@
   "devDependencies": {
     "concurrently": "^5.1.0",
     "mpath": ">=0.8.4",
-    "nodemon": "^2.0.2"
+    "nodemon": "^2.0.2",
+    "parcel": "^2.9.3"
   }
 }
