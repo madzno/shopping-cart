@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import data from "../../mockData/data"
+import data from "../mockData/data"
 
 const Header = () => {
   return (
