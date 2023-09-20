@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import data from "../mockData/data"
+// import data from "../mockData/data"
+import axios from "axios"
 
 const Header = () => {
   return (
@@ -52,29 +53,54 @@ const ProductList = ({ allProducts }) => {
   )
 }
 
-const Form = () => {
+const Form = ({ toggleForm, onSubmit }) => {
+  const [title, setTitle] = useState("");
+  const [price, setPrice] = useState("");
+  const [quantity, setQuantity] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit({ title, price, quantity });
+    reset();
+    console.log(title, price, quantity);
+    let formDiv = document.getElementsByClassName("add-form")[0]
+    formDiv.classList.toggle('visible')
+  };
+
+  const reset = () => {
+    setTitle("");
+    setPrice("");
+    setQuantity("");
+  };
+
   return (
     <div className="add-form">
-      <p><button className="add-product-button">Add A Product</button></p>
+      <p><button className="add-product-button" onClick={toggleForm}>Add A Product</button></p>
       <h3>Add Product</h3>
-      <form>
+      <form action="" onSubmit={handleSubmit}>
         <div className="input-group">
           <label for="product-name">Product Name:</label>
-          <input type="text" id="product-name" name="product-name" required />
+          <input type="text" id="product-name" name="product-name" required onChange={(e) => {
+            setTitle(e.target.value);
+          }} />
         </div>
         <div className="input-group">
           <label for="product-price">Price:</label>
           <input type="number" id="product-price" name="product-price" min="0"
-            step="0.01" required />
+            step="0.01" required onChange={(e) => {
+              setPrice(e.target.value);
+            }} />
         </div>
         <div className="input-group">
           <label for="product-quantity">Quantity:</label>
           <input type="number" id="product-quantity" name="product-quantity"
-            min="0" required />
+            min="0" required onChange={(e) => {
+              setQuantity(e.target.value);
+            }} />
         </div>
         <div className="actions form-actions">
-          <button type="submit">Add</button>
-          <button type="button">Cancel</button>
+          <button type="submit" onSubmit={handleSubmit}>Add</button>
+          <button type="button" onClick={toggleForm}>Cancel</button>
         </div>
       </form>
     </div>
@@ -85,14 +111,38 @@ const App = () => {
   const [productData, setProductData] = useState([])
 
   useEffect(() => {
-    setProductData(data)
+    const fetchProducts = async () => {
+      const response = await axios.get("/api/products")
+      setProductData(response.data)
+    }
+
+    fetchProducts()
   }, [])
+
+  const toggleFormVisible = (e) => {
+    e.preventDefault()
+    let formDiv = document.getElementsByClassName("add-form")[0]
+    formDiv.classList.toggle('visible')
+  }
+
+  const handleNewProduct = async (newProduct, callback) => {
+    try {
+      const response = await axios.post("/api/products", { ...newProduct });
+
+      setProductData(productData.concat(response.data));
+      // if (callback) {
+      //   callback();
+      // }
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
   return (
     <div id="app">
       <Header />
       <ProductList allProducts={productData} />
-      < Form />
+      < Form toggleForm={toggleFormVisible} onSubmit={handleNewProduct} />
     </div>
   )
 }
