@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-// import data from "../mockData/data"
 import axios from "axios"
 
 const Header = () => {
@@ -18,40 +17,64 @@ const Header = () => {
   )
 }
 
-const Product = ({ id, title, price, quantity }) => {
+const Product = ({ databaseId, title, price, quantity, onDeleteProduct, onEditProduct }) => {
+  const onDelete = () => {
+    onDeleteProduct(databaseId)
+    let undesiredProduct = document.getElementById(databaseId)
+    undesiredProduct.remove()
+    console.log(undesiredProduct)
+  }
+
+  const onEdit = () => {
+    onEditProduct(databaseId)
+  }
+
   return (
-    <li key={id} className="product">
+    <li id={databaseId} className="product">
       <div className="product-details">
         <h3>{title}</h3>
         <p className="price">{price}</p>
         <p className="quantity">{quantity}</p>
         <div className="actions product-actions">
           <button className="add-to-cart">Add to Cart</button>
-          <button className="edit">Edit</button>
+          <button className="edit" onClick={onEdit}>Edit</button>
         </div>
-        <button className="delete-button"><span>X</span></button>
+        <button className="delete-button" onClick={onDelete}><span>X</span></button>
       </div>
     </li>
   )
 }
 
-const ProductList = ({ allProducts }) => {
+const ProductList = ({ allProducts, onDeleteProduct, onEditProduct }) => {
   return (
     <div className="product-listing">
       <h2>Products</h2>
       <ul className="product-list">
         {allProducts.map(product => {
           return <Product
-            id={product.id}
+            key={product._id}
+            databaseId={product._id}
             title={product.title}
             price={product.price}
             quantity={product.quantity}
+            onDeleteProduct={onDeleteProduct}
+            onEditProduct={onEditProduct}
           />
         })}
       </ul>
     </div>
   )
 }
+
+/*
+  - User clicks edit button 
+  - Form is toggled open
+  - Should show 'Edit' instead of 'Add'
+  - On submit, PUT axios request to update item
+    - Response from backend used to update item in DOM
+      - Select item by its ID
+        - Update values of 'title', 'price', 'quantity' to those from the response obj
+*/
 
 const Form = ({ toggleForm, onSubmit }) => {
   const [title, setTitle] = useState("");
@@ -80,20 +103,20 @@ const Form = ({ toggleForm, onSubmit }) => {
       <form action="" onSubmit={handleSubmit}>
         <div className="input-group">
           <label for="product-name">Product Name:</label>
-          <input type="text" id="product-name" name="product-name" required onChange={(e) => {
+          <input type="text" id="product-name" value={title} name="product-name" required onChange={(e) => {
             setTitle(e.target.value);
           }} />
         </div>
         <div className="input-group">
           <label for="product-price">Price:</label>
-          <input type="number" id="product-price" name="product-price" min="0"
+          <input type="number" id="product-price" value={price} name="product-price" min="0"
             step="0.01" required onChange={(e) => {
               setPrice(e.target.value);
             }} />
         </div>
         <div className="input-group">
           <label for="product-quantity">Quantity:</label>
-          <input type="number" id="product-quantity" name="product-quantity"
+          <input type="number" id="product-quantity" value={quantity} name="product-quantity"
             min="0" required onChange={(e) => {
               setQuantity(e.target.value);
             }} />
@@ -106,6 +129,39 @@ const Form = ({ toggleForm, onSubmit }) => {
     </div>
   )
 }
+
+// ## 1.3. PUT /api/products/:id
+
+// Updates the product with the given `id`.
+
+// ### 1.3.1. Expected Payload
+
+// ```json
+// {
+//   "title": "Keyboard",
+//   "price": 50,
+//   "quantity": 5
+// }
+// ```
+
+// ### 1.3.2. Successful Response
+
+// The updated product is returned.
+
+// #### 1.3.2.1. Example Response
+
+// ```json
+// {
+//   "_id": "61d754d72092473d55a809e1",
+//   "title": "Keyboard",
+//   "price": 50,
+//   "quantity": 5,
+//   "createdAt": "2020-10-04T05:57:02.777Z",
+//   "updatedAt": "2020-10-04T05:57:02.777Z",
+//   "_v": 0
+// }
+// ```
+
 
 const App = () => {
   const [productData, setProductData] = useState([])
@@ -125,24 +181,41 @@ const App = () => {
     formDiv.classList.toggle('visible')
   }
 
-  const handleNewProduct = async (newProduct, callback) => {
+  const handleNewProduct = async (newProduct) => {
     try {
       const response = await axios.post("/api/products", { ...newProduct });
 
       setProductData(productData.concat(response.data));
-      // if (callback) {
-      //   callback();
-      // }
     } catch (e) {
       console.log(e);
+    }
+  }
+
+  const handleDeleteProduct = async (deleteProductId) => {
+    try {
+      await axios.delete(`/api/products/${deleteProductId}`);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  const handleEditProduct = async(editProductId) => {
+    try {
+      const response = await axios.put(`/api/products/${editProductId}`)
+      console.log(response.data)
+      let editedProduct = document.getElementById(editProductId)
+      console.log(editedProduct)
+      editedProduct.title
+    } catch (e) {
+      console.log(e); 
     }
   }
 
   return (
     <div id="app">
       <Header />
-      <ProductList allProducts={productData} />
-      < Form toggleForm={toggleFormVisible} onSubmit={handleNewProduct} />
+      <ProductList allProducts={productData} onDeleteProduct={handleDeleteProduct} onEditProduct={handleEditProduct} />
+      <Form toggleForm={toggleFormVisible} onSubmit={handleNewProduct} />
     </div>
   )
 }
