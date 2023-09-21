@@ -17,20 +17,40 @@ const Header = () => {
   )
 }
 
-const Product = ({ databaseId, title, price, quantity, onDeleteProduct, onEditProduct }) => {
+const ProductWrapper = ({ id, title, price, quantity, onDeleteProduct, onEditProduct }) => {
+  const [isEditFormShown, setEditFormShown] = useState(false);
+
   const onDelete = () => {
-    onDeleteProduct(databaseId)
-    let undesiredProduct = document.getElementById(databaseId)
+    onDeleteProduct(id)
+    let undesiredProduct = document.getElementById(id)
     undesiredProduct.remove()
     console.log(undesiredProduct)
   }
 
   const onEdit = () => {
-    onEditProduct(databaseId)
+    setEditFormShown(true)
+  }
+
+  if (isEditFormShown) {
+    return (
+      <li id={id} className="product">
+        <div className="product-details">
+          <h3>{title}</h3>
+          <p className="price">{price}</p>
+          <p className="quantity">{quantity}</p>
+          <div className="actions product-actions">
+            <button className="add-to-cart">Add to Cart</button>
+            <button className="edit" onClick={onEdit}>Edit</button>
+          </div>
+          <button className="delete-button" onClick={onDelete}><span>X</span></button>
+        </div>
+        <EditForm currentName={title} currentPrice={price} currentQuantity={quantity} changeShown={setEditFormShown} />
+      </li>
+    )
   }
 
   return (
-    <li id={databaseId} className="product">
+    <li id={id} className="product">
       <div className="product-details">
         <h3>{title}</h3>
         <p className="price">{price}</p>
@@ -51,9 +71,9 @@ const ProductList = ({ allProducts, onDeleteProduct, onEditProduct }) => {
       <h2>Products</h2>
       <ul className="product-list">
         {allProducts.map(product => {
-          return <Product
+          return <ProductWrapper
             key={product._id}
-            databaseId={product._id}
+            id={product._id}
             title={product.title}
             price={product.price}
             quantity={product.quantity}
@@ -66,17 +86,51 @@ const ProductList = ({ allProducts, onDeleteProduct, onEditProduct }) => {
   )
 }
 
-/*
-  - User clicks edit button 
-  - Form is toggled open
-  - Should show 'Edit' instead of 'Add'
-  - On submit, PUT axios request to update item
-    - Response from backend used to update item in DOM
-      - Select item by its ID
-        - Update values of 'title', 'price', 'quantity' to those from the response obj
-*/
+const EditForm = ({ currentName, currentPrice, currentQuantity, changeShown }) => {
+  return (
+    <div className="edit-form">
+      <h3>Edit Product</h3>
+      <form>
+        <div className="input-group">
+          <label for="product-name">Product Name</label>
+          <input
+            type="text"
+            id="product-name"
+            value={currentName}
+            aria-label="Product Name"
+          />
+        </div>
 
-const Form = ({ toggleForm, onSubmit }) => {
+        <div className="input-group">
+          <label for="product-price">Price</label>
+          <input
+            type="number"
+            id="product-price"
+            value={currentPrice}
+            aria-label="Product Price"
+          />
+        </div>
+
+        <div className="input-group">
+          <label for="product-quantity">Quantity</label>
+          <input
+            type="number"
+            id="product-quantity"
+            value={currentQuantity}
+            aria-label="Product Quantity"
+          />
+        </div>
+
+        <div className="actions form-actions">
+          <button type="submit">Update</button>
+          <button type="button" onClick={() => changeShown(false)}>Cancel</button>
+        </div>
+      </form>
+    </div>
+  )
+}
+
+const AddForm = ({ toggleForm, onSubmit }) => {
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [quantity, setQuantity] = useState("");
@@ -199,7 +253,7 @@ const App = () => {
     }
   }
 
-  const handleEditProduct = async(editProductId) => {
+  const handleEditProduct = async (editProductId) => {
     try {
       const response = await axios.put(`/api/products/${editProductId}`)
       console.log(response.data)
@@ -207,7 +261,7 @@ const App = () => {
       console.log(editedProduct)
       editedProduct.title
     } catch (e) {
-      console.log(e); 
+      console.log(e);
     }
   }
 
@@ -215,7 +269,7 @@ const App = () => {
     <div id="app">
       <Header />
       <ProductList allProducts={productData} onDeleteProduct={handleDeleteProduct} onEditProduct={handleEditProduct} />
-      <Form toggleForm={toggleFormVisible} onSubmit={handleNewProduct} />
+      <AddForm toggleForm={toggleFormVisible} onSubmit={handleNewProduct} />
     </div>
   )
 }
