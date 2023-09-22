@@ -7,6 +7,8 @@ import ProductList from "./ProductList";
 const App = () => {
   const [productData, setProductData] = useState([])
   const [isFormVisible, setFormVisible] = useState(false)
+  const [cartItems, setCartItems] = useState([])
+  const [isCartEmpty, setCartEmpty] = useState(null)
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -14,7 +16,22 @@ const App = () => {
       setProductData(response.data)
     }
 
-    fetchProducts()
+    fetchProducts();
+  }, [])
+
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      const response = await axios.get("/api/cart")
+      setCartItems(response.data)
+
+      if (response.data.length === 0) {
+        setCartEmpty(true);
+      } else {
+        setCartEmpty(false);
+      }
+    }
+
+    fetchCartItems();
   }, [])
 
   const updateProduct = (productObj) => {
@@ -67,7 +84,7 @@ const App = () => {
 
   return (
     <div id="app">
-      <Header />
+      <Header cartEmpty={isCartEmpty} />
       <ProductList allProducts={productData} onDeleteProduct={handleDeleteProduct} onEditProduct={handleEditProduct} />
       <AddForm formVisible={isFormVisible} setVisible={setFormVisible} onSubmit={handleNewProduct} />
     </div>
