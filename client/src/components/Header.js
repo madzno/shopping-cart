@@ -1,6 +1,6 @@
 import CartTable from "./CartTable"
 
-const Header = ({ cartEmpty, cartItems }) => {
+const Header = ({ cartEmpty, cartItems, onCheckout }) => {
   if (cartEmpty) {
     return (
       <>
@@ -25,7 +25,7 @@ const Header = ({ cartEmpty, cartItems }) => {
           <h2>Your Cart</h2>
           <CartTable cartItems={cartItems} />
           <div className="checkout-button">
-            <button className="checkout">Checkout</button>
+            <button className="checkout" onClick={onCheckout}>Checkout</button>
           </div>
         </div>
       </header>

@@ -44,6 +44,25 @@ const App = () => {
     })
   }
 
+  const updateCartItem = (itemObj) => {
+    let item;
+    let bool = false;
+    item = cartItems.map(item => {
+      if (item._id === itemObj._id) {
+        bool = true;
+        return itemObj;
+      } else {
+        return item;
+      }
+    })
+
+    if (bool) {
+      setCartItems(item)
+    } else {
+      setCartItems(cartItems.concat(itemObj))
+    }
+  }
+
   const deleteProduct = (id) => {
     return productData.filter(product => {
       if (product._id != id) {
@@ -84,10 +103,20 @@ const App = () => {
 
   const handleAddCartItem = async (cartItemId) => {
     try {
-      const response = await axios.post(`api/add-to-cart`, { productId: cartItemId })
-      console.log(response.data);
-      // returns new cart item AND new product wrapped in an object i.e response.data.product points to new
-      // product with new quantity and response.data.item ponits to new cart item with new quantity
+      const response = await axios.post(`/api/add-to-cart`, { productId: cartItemId })
+      const newProductArr = updateProduct(response.data.product)
+      setProductData(newProductArr)
+
+      updateCartItem(response.data.item)
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  const handleCheckout = async () => {
+    try {
+      await axios.post('/api/checkout')
+      setCartItems([]);
     } catch (e) {
       console.log(e);
     }
@@ -98,11 +127,13 @@ const App = () => {
       <Header
         cartEmpty={isCartEmpty}
         cartItems={cartItems}
+        onCheckout={handleCheckout}
       />
       <ProductList
         allProducts={productData}
         onDeleteProduct={handleDeleteProduct}
         onEditProduct={handleEditProduct}
+        onAddToCart={handleAddCartItem}
       />
       <AddForm
         formVisible={isFormVisible}

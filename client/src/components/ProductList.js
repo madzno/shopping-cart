@@ -1,6 +1,6 @@
 import ProductWrapper from "./ProductWrapper"
 
-const ProductList = ({ allProducts, onDeleteProduct, onEditProduct }) => {
+const ProductList = ({ allProducts, onDeleteProduct, onEditProduct, onAddToCart }) => {
   return (
     <div className="product-listing">
       <h2>Products</h2>
@@ -14,6 +14,7 @@ const ProductList = ({ allProducts, onDeleteProduct, onEditProduct }) => {
             quantity={product.quantity}
             onDeleteProduct={onDeleteProduct}
             onEditProduct={onEditProduct}
+            onAddProduct={onAddToCart}
           />
         })}
       </ul>
