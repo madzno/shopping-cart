@@ -7,6 +7,8 @@ import ProductList from "./ProductList";
 const App = () => {
   const [productData, setProductData] = useState([])
   const [isFormVisible, setFormVisible] = useState(false)
+  const [cartItems, setCartItems] = useState([])
+  const [isCartEmpty, setCartEmpty] = useState(null)
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -14,7 +16,22 @@ const App = () => {
       setProductData(response.data)
     }
 
-    fetchProducts()
+    fetchProducts();
+  }, [])
+
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      const response = await axios.get("/api/cart")
+      setCartItems(response.data)
+
+      if (response.data.length === 0) {
+        setCartEmpty(true);
+      } else {
+        setCartEmpty(false);
+      }
+    }
+
+    fetchCartItems();
   }, [])
 
   const updateProduct = (productObj) => {
@@ -65,11 +82,33 @@ const App = () => {
     }
   }
 
+  const handleAddCartItem = async (cartItemId) => {
+    try {
+      const response = await axios.post(`api/add-to-cart`, { productId: cartItemId })
+      console.log(response.data);
+      // returns new cart item AND new product wrapped in an object i.e response.data.product points to new
+      // product with new quantity and response.data.item ponits to new cart item with new quantity
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   return (
     <div id="app">
-      <Header />
-      <ProductList allProducts={productData} onDeleteProduct={handleDeleteProduct} onEditProduct={handleEditProduct} />
-      <AddForm formVisible={isFormVisible} setVisible={setFormVisible} onSubmit={handleNewProduct} />
+      <Header
+        cartEmpty={isCartEmpty}
+        cartItems={cartItems}
+      />
+      <ProductList
+        allProducts={productData}
+        onDeleteProduct={handleDeleteProduct}
+        onEditProduct={handleEditProduct}
+      />
+      <AddForm
+        formVisible={isFormVisible}
+        setVisible={setFormVisible}
+        onSubmit={handleNewProduct}
+      />
     </div>
   )
 }
