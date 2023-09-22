@@ -5,7 +5,7 @@ const CartTable = ({ cartItems }) => {
     let total = 0;
 
     cartItems.forEach(item => {
-      total += item.price;
+      total += (item.price * item.quantity);
     })
 
     return total;

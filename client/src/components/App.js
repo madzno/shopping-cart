@@ -82,11 +82,33 @@ const App = () => {
     }
   }
 
+  const handleAddCartItem = async (cartItemId) => {
+    try {
+      const response = await axios.post(`api/add-to-cart`, { productId: cartItemId })
+      console.log(response.data);
+      // returns new cart item AND new product wrapped in an object i.e response.data.product points to new
+      // product with new quantity and response.data.item ponits to new cart item with new quantity
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   return (
     <div id="app">
-      <Header cartEmpty={isCartEmpty} cartItems={cartItems} />
-      <ProductList allProducts={productData} onDeleteProduct={handleDeleteProduct} onEditProduct={handleEditProduct} />
-      <AddForm formVisible={isFormVisible} setVisible={setFormVisible} onSubmit={handleNewProduct} />
+      <Header
+        cartEmpty={isCartEmpty}
+        cartItems={cartItems}
+      />
+      <ProductList
+        allProducts={productData}
+        onDeleteProduct={handleDeleteProduct}
+        onEditProduct={handleEditProduct}
+      />
+      <AddForm
+        formVisible={isFormVisible}
+        setVisible={setFormVisible}
+        onSubmit={handleNewProduct}
+      />
     </div>
   )
 }
