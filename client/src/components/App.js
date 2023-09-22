@@ -44,7 +44,13 @@ const ProductWrapper = ({ id, title, price, quantity, onDeleteProduct, onEditPro
           </div>
           <button className="delete-button" onClick={onDelete}><span>X</span></button>
         </div>
-        <EditForm currentName={title} currentPrice={price} currentQuantity={quantity} changeShown={setEditFormShown} />
+        <EditForm 
+        id={id}
+        currentName={title} 
+        currentPrice={price} 
+        currentQuantity={quantity} 
+        changeShown={setEditFormShown}
+        onEditSubmit={onEditProduct}  />
       </li>
     )
   }
@@ -86,38 +92,50 @@ const ProductList = ({ allProducts, onDeleteProduct, onEditProduct }) => {
   )
 }
 
-const EditForm = ({ currentName, currentPrice, currentQuantity, changeShown }) => {
+const EditForm = ({ id, currentName, currentPrice, currentQuantity, changeShown, onEditSubmit }) => {
+  const [editedName, setEditedName] = useState(currentName);
+  const [editedPrice, setEditedPrice] = useState(currentPrice);
+  const [editedQuantity, setEditedQuantity] = useState(currentQuantity);
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    onEditSubmit( id, { "title": editedName, "price": editedPrice, "quantity": editedQuantity });
+  };
+
   return (
     <div className="edit-form">
       <h3>Edit Product</h3>
-      <form>
+      <form action="" onSubmit={handleEditSubmit}>
         <div className="input-group">
-          <label for="product-name">Product Name</label>
+          <label htmlFor="product-name">Product Name</label>
           <input
             type="text"
             id="product-name"
-            value={currentName}
+            value={editedName}
             aria-label="Product Name"
+            onChange={(e) => setEditedName(e.target.value)}
           />
         </div>
 
         <div className="input-group">
-          <label for="product-price">Price</label>
+          <label htmlFor="product-price">Price</label>
           <input
             type="number"
             id="product-price"
-            value={currentPrice}
+            value={editedPrice}
             aria-label="Product Price"
+            onChange={(e) => setEditedPrice(e.target.value)}
           />
         </div>
 
         <div className="input-group">
-          <label for="product-quantity">Quantity</label>
+          <label htmlFor="product-quantity">Quantity</label>
           <input
             type="number"
             id="product-quantity"
-            value={currentQuantity}
+            value={editedQuantity}
             aria-label="Product Quantity"
+            onChange={(e) => setEditedQuantity(e.target.value)}
           />
         </div>
 
@@ -156,20 +174,20 @@ const AddForm = ({ toggleForm, onSubmit }) => {
       <h3>Add Product</h3>
       <form action="" onSubmit={handleSubmit}>
         <div className="input-group">
-          <label for="product-name">Product Name:</label>
+          <label htmlFor="product-name">Product Name:</label>
           <input type="text" id="product-name" value={title} name="product-name" required onChange={(e) => {
             setTitle(e.target.value);
           }} />
         </div>
         <div className="input-group">
-          <label for="product-price">Price:</label>
+          <label htmlFor="product-price">Price:</label>
           <input type="number" id="product-price" value={price} name="product-price" min="0"
             step="0.01" required onChange={(e) => {
               setPrice(e.target.value);
             }} />
         </div>
         <div className="input-group">
-          <label for="product-quantity">Quantity:</label>
+          <label htmlFor="product-quantity">Quantity:</label>
           <input type="number" id="product-quantity" value={quantity} name="product-quantity"
             min="0" required onChange={(e) => {
               setQuantity(e.target.value);
@@ -253,13 +271,12 @@ const App = () => {
     }
   }
 
-  const handleEditProduct = async (editProductId) => {
+  const handleEditProduct = async (editProductId, editedProduct) => {
     try {
-      const response = await axios.put(`/api/products/${editProductId}`)
+      const response = await axios.put(`/api/products/${editProductId}`, editedProduct)
       console.log(response.data)
-      let editedProduct = document.getElementById(editProductId)
-      console.log(editedProduct)
-      editedProduct.title
+      let editProduct = document.getElementById(editProductId)
+      console.log(editProduct)
     } catch (e) {
       console.log(e);
     }
