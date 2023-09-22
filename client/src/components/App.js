@@ -84,7 +84,7 @@ const App = () => {
 
   return (
     <div id="app">
-      <Header cartEmpty={isCartEmpty} />
+      <Header cartEmpty={isCartEmpty} cartItems={cartItems} />
       <ProductList allProducts={productData} onDeleteProduct={handleDeleteProduct} onEditProduct={handleEditProduct} />
       <AddForm formVisible={isFormVisible} setVisible={setFormVisible} onSubmit={handleNewProduct} />
     </div>
