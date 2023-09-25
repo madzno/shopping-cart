@@ -25,6 +25,7 @@ const ProductWrapper = ({ id, title, price, quantity, onDeleteProduct, onEditPro
   */
 
   useEffect(() => {
+    console.log(quantity)
     if (quantity === 0) {
       setIsZero(true)
     } else {
@@ -40,7 +41,7 @@ const ProductWrapper = ({ id, title, price, quantity, onDeleteProduct, onEditPro
           <p className="price">{price}</p>
           <p className="quantity">{quantity}</p>
           <div className="actions product-actions">
-            <button className="add-to-cart" onClick={onAdd} disabled={isZero}>Add to Cart</button>
+            <button className="add-to-cart" disabled={isZero ? true : false} onClick={onAdd}>Add to Cart</button>
             <button className="edit" onClick={onEdit}>Edit</button>
           </div>
           <button className="delete-button" onClick={onDelete}><span>X</span></button>
