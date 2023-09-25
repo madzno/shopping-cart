@@ -10,7 +10,7 @@ const Header = ({ cartEmpty, cartItems, onCheckout }) => {
             <h2>Your Cart</h2>
             <p>Your cart is empty</p>
             <p>Total: $0</p>
-            <button className="checkout" disabled>Checkout</button>
+            <button className="checkout" disabled="true">Checkout</button>
           </div>
         </header>
       </>

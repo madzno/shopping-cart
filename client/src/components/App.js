@@ -3,6 +3,7 @@ import axios from "axios";
 import Header from "./Header";
 import AddForm from "./AddForm"
 import ProductList from "./ProductList";
+import { checkoutCart, getCartItems, getProducts } from "../services/theShop"
 
 const App = () => {
   const [productData, setProductData] = useState([])
@@ -12,8 +13,8 @@ const App = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const response = await axios.get("/api/products")
-      setProductData(response.data)
+      const products = getProducts();
+      setProductData(products)
     }
 
     fetchProducts();
@@ -21,8 +22,8 @@ const App = () => {
 
   useEffect(() => {
     const fetchCartItems = async () => {
-      const response = await axios.get("/api/cart")
-      setCartItems(response.data)
+      const items = getCartItems();
+      setCartItems(items)
 
       if (response.data.length === 0) {
         setCartEmpty(true);
@@ -115,7 +116,7 @@ const App = () => {
 
   const handleCheckout = async () => {
     try {
-      await axios.post('/api/checkout')
+      await checkoutCart();
       setCartItems([]);
     } catch (e) {
       console.log(e);
