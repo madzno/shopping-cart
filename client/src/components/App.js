@@ -1,9 +1,16 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import Header from "./Header";
 import AddForm from "./AddForm"
 import ProductList from "./ProductList";
-import { checkoutCart, getCartItems, getProducts } from "../services/theShop"
+import {
+  checkoutCart,
+  getCartItems,
+  getProducts,
+  addNewProduct,
+  deleteProduct,
+  editProduct,
+  addNewCartItem
+} from "../services/theShop"
 
 const App = () => {
   const [productData, setProductData] = useState([])
@@ -13,7 +20,7 @@ const App = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const products = getProducts();
+      const products = await getProducts();
       setProductData(products)
     }
 
@@ -22,10 +29,10 @@ const App = () => {
 
   useEffect(() => {
     const fetchCartItems = async () => {
-      const items = getCartItems();
+      const items = await getCartItems();
       setCartItems(items)
 
-      if (response.data.length === 0) {
+      if (items.length === 0) {
         setCartEmpty(true);
       } else {
         setCartEmpty(false);
@@ -64,7 +71,7 @@ const App = () => {
     }
   }
 
-  const deleteProduct = (id) => {
+  const removeFromProducts = (id) => {
     return productData.filter(product => {
       if (product._id != id) {
         return product
@@ -74,9 +81,9 @@ const App = () => {
 
   const handleNewProduct = async (newProduct) => {
     try {
-      const response = await axios.post("/api/products", { ...newProduct });
+      const returnedProduct = await addNewProduct(newProduct)
 
-      setProductData(productData.concat(response.data));
+      setProductData(productData.concat(returnedProduct));
     } catch (e) {
       console.log(e);
     }
@@ -84,8 +91,8 @@ const App = () => {
 
   const handleDeleteProduct = async (deleteProductId) => {
     try {
-      await axios.delete(`/api/products/${deleteProductId}`);
-      let newArr = deleteProduct(deleteProductId)
+      await deleteProduct(deleteProductId);
+      let newArr = removeFromProducts(deleteProductId)
       setProductData(newArr)
     } catch (e) {
       console.log(e);
@@ -94,8 +101,8 @@ const App = () => {
 
   const handleEditProduct = async (editProductId, editedProduct) => {
     try {
-      const response = await axios.put(`/api/products/${editProductId}`, editedProduct)
-      const newArr = updateProduct(response.data)
+      const product = await editProduct(editProductId, editedProduct);
+      const newArr = updateProduct(product)
       setProductData(newArr)
     } catch (e) {
       console.log(e);
@@ -104,11 +111,10 @@ const App = () => {
 
   const handleAddCartItem = async (cartItemId) => {
     try {
-      const response = await axios.post(`/api/add-to-cart`, { productId: cartItemId })
-      const newProductArr = updateProduct(response.data.product)
-      setProductData(newProductArr)
-
-      updateCartItem(response.data.item)
+      const responseData = await addNewCartItem({ productId: cartItemId })
+      const newProductArr = updateProduct(responseData.product);
+      setProductData(newProductArr);
+      updateCartItem(responseData.item);
     } catch (e) {
       console.log(e);
     }
